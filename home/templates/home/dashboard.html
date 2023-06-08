@@ -1,0 +1,266 @@
+<!-- home/templates/home/dashboard.html -->
+{% extends 'base.html' %}
+
+{% block content %}
+<h1 style="text-align: center;">Dashboard</h1>
+{% if messages %}
+<h4>Alert!</h4>
+<ul class="messages">
+  {% for message in messages %}
+    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+  {% endfor %}
+</ul>
+{% endif %}
+<h2 style="text-align: center;">Temperature</h2>
+<h3 style="text-align: center;">Current Temperature: {{temp}}°C</h3>
+<h3 style="text-align: center;">Forecast Temperature(Next week): {{fTemp}}°C</h3>
+<div style="display: flex; justify-content: space-around;">
+    <button class="custom-button" id="TemMonth">Temperature Monthly</button>
+    <button class="custom-button" id="TemWeek">Temperature Last 12 weeks</button>
+</div>
+<canvas id="myChart"></canvas>
+<h2 style="text-align: center;">Humidity</h2>
+<h3 style="text-align: center;">Current Humidity: {{humid}}% </h3>
+<h3 style="text-align: center;">Forecast Humidity(Next Week): {{fHum}}%</h3>
+
+<div style="display: flex; justify-content: space-around;">
+    <button class="custom-button" id="HumMonth">Humidity Monthly</button>
+    <button class="custom-button" id="HumWeek">Humidity Last 12 weeks</button>
+</div>
+<canvas id="HumChart"></canvas>
+<h2 style="text-align: center;">Current Stock</h2>
+<h3 style="text-align: center;">Dispenser 1: {{dist}}%</h3>
+<h3 style="text-align: center;">Dispenser 2: 0%</h3>
+<h3 style="text-align: center;">Dispenser 3: 0%</h3>
+<div style="display: flex; justify-content: space-around;">
+    <button class="custom-button" id="UsageMonth">Average Daily Dispense Per Month</button>
+    <button class="custom-button" id="UsageWeek">Average Daily Dispense Per Week</button>
+</div>
+<canvas id="UsageChart"></canvas>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+var ctx = document.getElementById('myChart').getContext('2d');
+var ctx2 = document.getElementById('HumChart').getContext('2d');
+var ctx3 = document.getElementById('UsageChart').getContext('2d');
+var chart = null;
+var HumidChart = null;
+var UsageChart = null;
+
+document.getElementById('TemMonth').addEventListener('click', function() {
+    if(chart !== null){
+        chart.destroy();
+    }
+    chart = new Chart(ctx, {
+        // configuration for Chart 1
+        type: 'line',
+        data: {
+            labels: {{months|safe}},
+            datasets: [{
+                label: 'Tempreture Chart Monthly',
+                data: {{temp_data}},
+                borderColor: 'rgb(255, 99, 132)',
+                fill: false
+            }]
+        },
+        options: {
+            responsive: true,
+            title: {
+                display: true,
+                text: 'Chart 1'
+            },
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        beginAtZero: true
+                    }
+                }]
+            }
+        }
+    });
+});
+
+document.getElementById('TemWeek').addEventListener('click', function() {
+    if(chart !== null){
+        chart.destroy();
+    }
+    chart = new Chart(ctx, {
+        // configuration for Chart 2
+        type: 'line',
+        data: {
+            labels: ['w1', 'w2', 'w3', 'w4', 'w5', 'w6', 'w7','w8','w9','w10','w11','w12'],
+            datasets: [{
+                label: 'Temperature Chart Weekly',
+                data: {{temp_week_data}},
+                borderColor: 'rgb(75, 192, 192)',
+                fill: false
+            }]
+        },
+        options: {
+            responsive: true,
+            title: {
+                display: true,
+                text: 'Chart 2'
+            },
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        beginAtZero: true
+                    }
+                }]
+            }
+        }
+    });
+});
+document.getElementById('HumMonth').addEventListener('click', function() {
+    if(HumidChart !== null){
+        HumidChart.destroy();
+    }
+    HumidChart = new Chart(ctx2, {
+        // configuration for Chart 1
+        type: 'line',
+        data: {
+            labels: {{months|safe}},
+            datasets: [{
+                label: 'Humidity Chart Monthly',
+                data: {{hum_data}},
+                borderColor: 'rgb(255, 99, 132)',
+                fill: false
+            }]
+        },
+        options: {
+            responsive: true,
+            title: {
+                display: true,
+                text: 'Humidity Chart Monthly'
+            },
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        beginAtZero: true
+                    }
+                }]
+            }
+        }
+    });
+});
+
+document.getElementById('HumWeek').addEventListener('click', function() {
+    if(HumidChart !== null){
+        HumidChart.destroy();
+    }
+    HumidChart = new Chart(ctx2, {
+        // configuration for Chart 2
+        type: 'line',
+        data: {
+            labels: ['w1', 'w2', 'w3', 'w4', 'w5', 'w6', 'w7','w8','w9','w10','w11','w12'],
+            datasets: [{
+                label: 'Tempreture Chart Weekly',
+                data: {{hum_week_data}},
+                borderColor: 'rgb(75, 192, 192)',
+                fill: false
+            }]
+        },
+        options: {
+            responsive: true,
+            title: {
+                display: true,
+                text: 'Humidity Chart Weekly'
+            },
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        beginAtZero: true
+                    }
+                }]
+            }
+        }
+    });
+});
+document.getElementById('UsageMonth').addEventListener('click', function() {
+    if(UsageChart !== null){
+        UsageChart.destroy();
+    }
+    UsageChart = new Chart(ctx3, {
+        // configuration for Chart 1
+        type: 'line',
+        data: {
+            labels: {{months|safe}},
+            datasets: [{
+                label: 'Dispenser 1',
+                data: {{md1}},
+                borderColor: 'rgb(255, 99, 132)',
+                fill: false
+            },{
+                label: 'Dispenser 2',
+                data: {{md2}},
+                borderColor: 'rgb(125, 239, 172)',
+                fill: false
+            },{
+                label: 'Dispenser 3',
+                data: {{md3}},
+                borderColor: 'rgb(0, 99, 132)',
+                fill: false
+            }]
+        },
+        options: {
+            responsive: true,
+            title: {
+                display: true,
+                text: 'Usage Chart Monthly'
+            },
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        beginAtZero: true
+                    }
+                }]
+            }
+        }
+    });
+});
+
+document.getElementById('UsageWeek').addEventListener('click', function() {
+    if(UsageChart !== null){
+        UsageChart.destroy();
+    }
+    UsageChart = new Chart(ctx3, {
+        // configuration for Chart 2
+        type: 'line',
+        data: {
+            labels: ['w1', 'w2', 'w3', 'w4', 'w5', 'w6', 'w7','w8','w9','w10','w11','w12'],
+            datasets: [{
+                label: 'Dispenser A',
+                data: {{wd1}},
+                borderColor: 'rgb(255, 99, 132)',
+                fill: false
+            },{
+                label: 'Dispenser B',
+                data: {{wd2}},
+                borderColor: 'rgb(125, 239, 172)',
+                fill: false
+            },{
+                label: 'Dispenser C',
+                data: {{wd3}},
+                borderColor: 'rgb(0, 99, 132)',
+                fill: false
+            }]
+        },
+        options: {
+            responsive: true,
+            title: {
+                display: true,
+                text: 'Humidity Chart Weekly'
+            },
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        beginAtZero: true
+                    }
+                }]
+            }
+        }
+    });
+});
+
+</script>
+{% endblock %}
